@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  TF_IN_AUTOMATION: true
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+
+  - script: pip install checkov tflint terraform-docs
+    displayName: 'Install tools'
+
+  - script: |
+      terraform init
+      terraform validate
+      terraform fmt -check
+      tflint
+      checkov -d .
+    displayName: 'Terraform Validate & Scan'
